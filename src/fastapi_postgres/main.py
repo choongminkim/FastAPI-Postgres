@@ -4,14 +4,15 @@ from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi_postgres.router.user import user_router
-from fastapi_postgres.database.database import Base, async_engine
+from fastapi_postgres.database.database import init_db, close_db
 
 
 @asynccontextmanager
 async def lifespan(router: APIRouter):
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all, checkfirst=True)
+    await init_db()
     yield
+
+    await close_db()
 
 
 def creat_app():
