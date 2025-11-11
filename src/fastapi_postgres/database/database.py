@@ -11,16 +11,23 @@ async_session_maker = None
 
 
 async def init_db():
-    global async_engine, async_session_maker
+    try:
+        global async_engine, async_session_maker
 
-    async_engine = create_async_engine(
-        "postgresql+asyncpg://postgres@localhost:11001/postgres", echo=True
-    )
+        async_engine = create_async_engine(
+            "postgresql+asyncpg://postgres@localhost:11001/postgres", echo=True
+        )
 
-    async_session_maker = async_sessionmaker(bind=async_engine, expire_on_commit=False)
+        async_session_maker = async_sessionmaker(
+            bind=async_engine, expire_on_commit=False
+        )
 
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all, checkfirst=True)
+        async with async_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all, checkfirst=True)
+
+    except Exception as e:
+        print(f"\033[31mERROR\033[0m: Database initialization failed: {e}")
+        raise
 
 
 async def close_db():
