@@ -3,9 +3,7 @@ from typing import Optional, List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
-from fastapi_postgres.schemas.user import UserCreate
-from fastapi_postgres.database.models.user import UserModel
+from fastapi_postgres.database.models.user import UserModel, UserCreate, UserRead
 
 
 async def create_user(db: AsyncSession, user: UserCreate) -> UserModel:

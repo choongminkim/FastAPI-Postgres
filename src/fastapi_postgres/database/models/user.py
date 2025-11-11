@@ -12,3 +12,19 @@ class UserModel(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     height: Mapped[float] = mapped_column()
     eyesight: Mapped[List[float]] = mapped_column(JSON, nullable=True)
+
+
+class UserCreate(BaseModel):
+    height: float
+    eyesight: List[float]
+
+    class Config:
+        orm_mode = True
+
+
+class UserRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    height: float
+    eyesight: List[float]
