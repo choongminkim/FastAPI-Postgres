@@ -15,11 +15,10 @@ class UserModel(Base):
 
 
 class UserCreate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     height: float
     eyesight: List[float]
-
-    class Config:
-        orm_mode = True
 
 
 class UserRead(BaseModel):

@@ -1,8 +1,11 @@
+import redis.asyncio as redis
 import uvicorn
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi_postgres.core.cache import RedisUtility
 from fastapi_postgres.exceptions.handler import *
 from fastapi_postgres.api.main import api_router
 from fastapi_postgres.database.database import init_db, close_db
@@ -10,10 +13,14 @@ from fastapi_postgres.database.database import init_db, close_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
+    app.state.redis = RedisUtility(
+        host="localhost", port="6379", db=0, decode_responses=True
+    )
+    init_db()
     yield
 
-    await close_db()
+    close_db()
+    app.state.redis.close()
 
 
 def create_app():

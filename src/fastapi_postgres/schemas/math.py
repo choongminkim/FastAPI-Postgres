@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 
 
-class MathMultiplication(BaseModel):
+class MathBase(BaseModel):
     x: float
-    y: str
+
+
+class MathOutput(BaseModel):
+    result: float

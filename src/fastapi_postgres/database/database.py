@@ -1,41 +1,45 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase
+from collections.abc import Generator
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 
 class Base(DeclarativeBase):
     pass
 
 
-async_engine = None
-async_session_maker = None
+engine = None
+session_maker = None
 
 
-async def init_db():
+def init_db():
     try:
-        global async_engine, async_session_maker
-
-        async_engine = create_async_engine(
-            "postgresql+asyncpg://postgres@localhost:11001/postgres", echo=True
+        global engine, session_maker
+        engine = create_engine(
+            "postgresql+psycopg2://postgres@localhost:11001/postgres"
         )
 
-        async_session_maker = async_sessionmaker(
-            bind=async_engine, expire_on_commit=False
-        )
-
-        async with async_engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all, checkfirst=True)
+        session_maker = sessionmaker(bind=engine, expire_on_commit=False)
+        with engine.begin() as conn:
+            Base.metadata.create_all(bind=conn, checkfirst=True)
 
     except Exception as e:
         print(f"\033[31mERROR\033[0m: Database initialization failed: {e}")
         raise
 
 
-async def close_db():
-    global async_engine
-    if async_engine:
-        await async_engine.dispose()
+def close_db():
+    global engine
+    if engine:
+        engine.dispose()
 
 
-async def get_async_db():
-    async with async_session_maker() as session:
+def get_db() -> Generator[Session, None, None]:
+    session = session_maker()
+    try:
         yield session
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()

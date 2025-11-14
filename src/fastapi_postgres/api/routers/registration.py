@@ -24,5 +24,5 @@ def get_user_service(repo: UserRepositoryInterface = Depends(MySQLUserRepository
 
 
 @router.get("/{user_id}")
-async def get_user(user_id: int, service=Depends(get_user_service)):
+def get_user(user_id: int, service=Depends(get_user_service)):
     return service(user_id)
